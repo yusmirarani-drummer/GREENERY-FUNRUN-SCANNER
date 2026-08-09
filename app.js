@@ -4,9 +4,7 @@
 *****************************************/
 
 
-const API_URL =
-"https://script.google.com/macros/s/AKfycbzNy-33ISGh7qRuPMJ846s58irXVZiZ5nWuzFv-MB2MzomNhMav58L-d86B2mkhe08l/exec";
-
+const API_URL = "/.netlify/functions/api";
 
 
 let currentBib = "";
