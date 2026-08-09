@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html>
+<head>
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>
+GREENERY FUN RUN SCANNER
+</title>
+
+<link rel="stylesheet" href="style.css">
+
+<script src="https://unpkg.com/@zxing/library@latest"></script>
+
+</head>
+
+
+<body>
+
+<h2>
+🌿 GREENERY FUN RUN
+<br>
+QR SCANNER
+</h2>
+
+
+<div id="reader">
+
+<video id="video" width="100%"></video>
+
+</div>
+
+
+<div id="result"></div>
+
+
+<div id="card">
+
+<h3>Maklumat Peserta</h3>
+
+<p>Nama:
+<br>
+<b id="nama"></b>
+</p>
+
+
+<p>Bib:
+<br>
+<b id="bib"></b>
+</p>
+
+
+<p>Saiz:
+<br>
+<b id="saiz"></b>
+</p>
+
+
+<p>Bayaran:
+<br>
+<b id="bayaran"></b>
+</p>
+
+
+<p>Status:
+<br>
+<b id="status"></b>
+</p>
+
+
+<button onclick="checkIn()">
+✅ CHECK-IN + AMBIL KIT
+</button>
+
+
+</div>
+
+
+<script src="app.js"></script>
+
+</body>
+</html>
