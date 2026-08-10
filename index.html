@@ -10,13 +10,12 @@
 GREENERY FUN RUN SCANNER
 </title>
 
-
 <link rel="stylesheet"
       href="style.css">
 
 
 <!-- =====================================
-     HTML5 QR CODE LIBRARY
+     QR CODE LIBRARY
 ===================================== -->
 
 <script
@@ -24,18 +23,94 @@ src="https://unpkg.com/html5-qrcode"
 type="text/javascript">
 </script>
 
-
 </head>
 
 
 <body>
 
 
+<!-- =====================================
+     HEADER
+===================================== -->
+
 <h2>
+
 🌿 GREENERY FUN RUN
+
 <br>
+
 QR SCANNER
+
 </h2>
+
+
+<!-- =====================================
+     CREW & KAUNTER
+===================================== -->
+
+<div class="settings-card">
+
+<h3>
+⚙️ Tetapan Crew
+</h3>
+
+
+<label for="crew">
+Crew
+</label>
+
+
+<select id="crew">
+
+<option value="Crew A">
+Crew A
+</option>
+
+<option value="Crew B">
+Crew B
+</option>
+
+<option value="Crew C">
+Crew C
+</option>
+
+<option value="Crew D">
+Crew D
+</option>
+
+</select>
+
+
+<br><br>
+
+
+<label for="kaunter">
+Kaunter
+</label>
+
+
+<select id="kaunter">
+
+<option value="Kaunter 1">
+Kaunter 1
+</option>
+
+<option value="Kaunter 2">
+Kaunter 2
+</option>
+
+<option value="Kaunter 3">
+Kaunter 3
+</option>
+
+<option value="Kaunter 4">
+Kaunter 4
+</option>
+
+</select>
+
+
+</div>
 
 
 <!-- =====================================
@@ -126,10 +201,29 @@ Status:
 </p>
 
 
+<!-- =====================================
+     CHECK-IN BUTTON
+===================================== -->
+
 <button
+id="checkInButton"
 onclick="checkIn()">
 
 ✅ CHECK-IN + AMBIL KIT
+
+</button>
+
+
+<!-- =====================================
+     SCAN NEXT BUTTON
+===================================== -->
+
+<button
+id="nextButton"
+onclick="scanNext()"
+style="display:none;">
+
+📷 SCAN PESERTA SETERUSNYA
 
 </button>
 
