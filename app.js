@@ -1,37 +1,29 @@
 /*****************************************
  GREENERY FUN RUN
- NETLIFY QR SCANNER
+ NETLIFY QR SCANNER PRO
  APP.JS
 *****************************************/
 
+const API_URL = "/.netlify/functions/api";
 
 // ========================================
-// NETLIFY API
-// ========================================
-
-const API_URL =
-  "/.netlify/functions/api";
-
-
-// ========================================
-// GLOBAL VARIABLES
+// CONFIGURATION
 // ========================================
 
 let currentBib = "";
-
-let currentCrew =
-  "Crew A";
-
-let currentKaunter =
-  "Kaunter 1";
+let currentCrew = "Crew A";
+let currentKaunter = "Kaunter 1";
 
 let scanner = null;
+let scannerRunning = false;
+let processingQR = false;
 
-let scannerRunning =
-  false;
+// Elakkan QR yang sama diproses semula
+let lastScannedBib = "";
+let lastScanTime = 0;
 
-let processingQR =
-  false;
+// Tempoh anti-double scan
+const SCAN_COOLDOWN = 3000;
 
 
 // ========================================
@@ -43,74 +35,8 @@ document.addEventListener(
   function(){
 
     console.log(
-      "GREENERY FUN RUN Scanner loading..."
+      "GREENERY FUN RUN Scanner PRO loading..."
     );
-
-
-    // Dapatkan Crew dan Kaunter
-    // daripada dropdown
-
-    const crewSelect =
-      document.getElementById(
-        "crew"
-      );
-
-
-    const kaunterSelect =
-      document.getElementById(
-        "kaunter"
-      );
-
-
-    if(crewSelect){
-
-      currentCrew =
-        crewSelect.value ||
-        "Crew A";
-
-
-      crewSelect.addEventListener(
-        "change",
-        function(){
-
-          currentCrew =
-            this.value;
-
-          console.log(
-            "Crew:",
-            currentCrew
-          );
-
-        }
-      );
-
-    }
-
-
-    if(kaunterSelect){
-
-      currentKaunter =
-        kaunterSelect.value ||
-        "Kaunter 1";
-
-
-      kaunterSelect.addEventListener(
-        "change",
-        function(){
-
-          currentKaunter =
-            this.value;
-
-          console.log(
-            "Kaunter:",
-            currentKaunter
-          );
-
-        }
-      );
-
-    }
-
 
     startScanner();
 
@@ -125,10 +51,7 @@ document.addEventListener(
 function startScanner(){
 
   const reader =
-    document.getElementById(
-      "reader"
-    );
-
+    document.getElementById("reader");
 
   if(!reader){
 
@@ -140,10 +63,7 @@ function startScanner(){
 
   }
 
-
-  // Jangan mulakan scanner
-  // jika sedang berjalan
-
+  // Jika scanner masih hidup
   if(scannerRunning){
 
     console.log(
@@ -154,21 +74,19 @@ function startScanner(){
 
   }
 
-
+  // Bersihkan reader
   reader.innerHTML = "";
 
-
   scanner =
-    new Html5Qrcode(
-      "reader"
-    );
+    new Html5Qrcode("reader");
 
 
   scanner.start(
 
     {
-      facingMode:
-        "environment"
+      facingMode: {
+        ideal: "environment"
+      }
     },
 
     {
@@ -177,22 +95,22 @@ function startScanner(){
       qrbox: {
         width: 250,
         height: 250
-      }
+      },
+
+      aspectRatio: 1.0
 
     },
 
     function(decodedText){
 
-      handleQR(
-        decodedText
-      );
+      handleQR(decodedText);
 
     },
 
     function(errorMessage){
 
-      // Abaikan error scanning
-      // callback ini dipanggil berkali-kali
+      // Jangan paparkan scanning error
+      // kerana callback dipanggil berkali-kali.
 
     }
 
@@ -200,36 +118,33 @@ function startScanner(){
 
   .then(function(){
 
-    scannerRunning =
-      true;
-
-    processingQR =
-      false;
-
+    scannerRunning = true;
 
     console.log(
       "Camera scanner started"
+    );
+
+    showResult(
+      "📷 Scanner bersedia — sila scan QR peserta.",
+      "success"
     );
 
   })
 
   .catch(function(error){
 
-    scannerRunning =
-      false;
-
+    scannerRunning = false;
 
     console.error(
       "Camera error:",
       error
     );
 
-
     showResult(
 
-      "❌ Kamera tidak dapat digunakan." +
-      "<br><br>" +
-      "Sila benarkan permission kamera.",
+      "❌ Kamera tidak dapat digunakan.<br><br>" +
+
+      "Sila pastikan permission kamera dibenarkan.",
 
       "error"
 
@@ -252,26 +167,75 @@ function handleQR(text){
 
   }
 
+  const bib =
+    String(text)
+      .trim();
 
-  // Jangan proses QR berkali-kali
 
-  if(
-    processingQR ||
-    currentBib
-  ){
+  if(!bib){
 
     return;
 
   }
 
 
-  processingQR =
-    true;
+  // ======================================
+  // BLOCK JIKA SEDANG PROCESS
+  // ======================================
 
+  if(processingQR){
+
+    console.log(
+      "QR sedang diproses:",
+      bib
+    );
+
+    return;
+
+  }
+
+
+  // ======================================
+  // ANTI DOUBLE SCAN
+  // ======================================
+
+  const now =
+    Date.now();
+
+
+  if(
+    bib === lastScannedBib &&
+    (now - lastScanTime) <
+    SCAN_COOLDOWN
+  ){
+
+    console.log(
+      "Duplicate QR ignored:",
+      bib
+    );
+
+    return;
+
+  }
+
+
+  // Simpan QR terakhir
+
+  lastScannedBib =
+    bib;
+
+  lastScanTime =
+    now;
+
+
+  // ======================================
+  // LOCK PROCESSING
+  // ======================================
+
+  processingQR = true;
 
   currentBib =
-    String(text)
-      .trim();
+    bib;
 
 
   console.log(
@@ -280,12 +244,16 @@ function handleQR(text){
   );
 
 
-  // Hentikan kamera dahulu
+  // ======================================
+  // STOP CAMERA
+  // ======================================
 
   stopScanner();
 
 
-  // Cari peserta
+  // ======================================
+  // CARI PESERTA
+  // ======================================
 
   findParticipant(
     currentBib
@@ -340,9 +308,7 @@ function stopScanner(){
 // FIND PARTICIPANT
 // ========================================
 
-function findParticipant(
-  bib
-){
+function findParticipant(bib){
 
   showResult(
     "🔎 Mencari peserta...",
@@ -354,9 +320,7 @@ function findParticipant(
     API_URL +
     "?action=find" +
     "&bib=" +
-    encodeURIComponent(
-      bib
-    );
+    encodeURIComponent(bib);
 
 
   fetch(url)
@@ -372,11 +336,9 @@ function findParticipant(
 
       }
 
-
       return response.json();
 
     })
-
 
     .then(function(data){
 
@@ -402,7 +364,6 @@ function findParticipant(
         processingQR =
           false;
 
-
         showResult(
 
           "❌ " +
@@ -416,6 +377,8 @@ function findParticipant(
         );
 
 
+        // Auto reset selepas 2.5 saat
+
         setTimeout(
           resetScanner,
           2500
@@ -424,7 +387,6 @@ function findParticipant(
       }
 
     })
-
 
     .catch(function(error){
 
@@ -442,14 +404,11 @@ function findParticipant(
 
 
       showResult(
+
         "❌ Ralat sambungan API",
+
         "error"
-      );
 
-
-      setTimeout(
-        resetScanner,
-        2500
       );
 
     });
@@ -461,9 +420,7 @@ function findParticipant(
 // SHOW PARTICIPANT
 // ========================================
 
-function showParticipant(
-  data
-){
+function showParticipant(data){
 
   const info =
     document.getElementById(
@@ -521,13 +478,54 @@ function showParticipant(
   );
 
 
-  clearResult();
+  // ======================================
+  // CHECK STATUS KIT
+  // ======================================
+
+  if(
+    data.kit ===
+    "SUDAH AMBIL"
+  ){
+
+    showResult(
+
+      "ℹ️ Peserta sudah ambil kit" +
+
+      "<br><br>" +
+
+      "<b>" +
+
+      escapeHTML(
+        data.nama
+      ) +
+
+      "</b>" +
+
+      "<br><br>" +
+
+      "<button onclick=\"resetScanner()\">" +
+
+      "📷 SCAN PESERTA SETERUSNYA" +
+
+      "</button>",
+
+      "success"
+
+    );
+
+  }
+
+  else{
+
+    clearResult();
+
+  }
 
 }
 
 
 // ========================================
-// CHECK-IN + AMBIL KIT
+// CHECK-IN + KIT
 // ========================================
 
 function checkIn(){
@@ -535,8 +533,11 @@ function checkIn(){
   if(!currentBib){
 
     showResult(
+
       "❌ Bib Number tidak tersedia",
+
       "error"
+
     );
 
     return;
@@ -544,43 +545,20 @@ function checkIn(){
   }
 
 
-  // Ambil nilai terkini
-  // daripada dropdown
+  if(!processingQR){
 
-  const crewSelect =
-    document.getElementById(
-      "crew"
+    console.log(
+      "Check-In dipanggil selepas reset"
     );
 
-
-  const kaunterSelect =
-    document.getElementById(
-      "kaunter"
-    );
-
-
-  if(crewSelect){
-
-    currentCrew =
-      crewSelect.value ||
-      "Crew A";
-
-  }
-
-
-  if(kaunterSelect){
-
-    currentKaunter =
-      kaunterSelect.value ||
-      "Kaunter 1";
+    return;
 
   }
 
 
   showResult(
 
-    "⏳ Memproses " +
-    "Check-In + Kit...",
+    "⏳ Memproses Check-In + Kit...",
 
     "success"
 
@@ -588,34 +566,20 @@ function checkIn(){
 
 
   const url =
-
     API_URL +
-
     "?action=checkin" +
-
     "&bib=" +
-
     encodeURIComponent(
       currentBib
     ) +
-
     "&crew=" +
-
     encodeURIComponent(
       currentCrew
     ) +
-
     "&kaunter=" +
-
     encodeURIComponent(
       currentKaunter
     );
-
-
-  console.log(
-    "Check-In URL:",
-    url
-  );
 
 
   fetch(url)
@@ -631,11 +595,9 @@ function checkIn(){
 
       }
 
-
       return response.json();
 
     })
-
 
     .then(function(data){
 
@@ -651,13 +613,16 @@ function checkIn(){
 
     })
 
-
     .catch(function(error){
 
       console.error(
         "Check-In API Error:",
         error
       );
+
+
+      processingQR =
+        false;
 
 
       showResult(
@@ -681,19 +646,14 @@ function handleCheckInResult(
   data
 ){
 
-  // ==============================
-  // BERJAYA
-  // ==============================
+  // ======================================
+  // SUCCESS
+  // ======================================
 
   if(
     data.status ===
     "SUCCESS"
   ){
-
-    updateStatus(
-      "HADIR / SUDAH AMBIL"
-    );
-
 
     showResult(
 
@@ -717,24 +677,24 @@ function handleCheckInResult(
     );
 
 
+    updateStatus(
+      "HADIR / SUDAH AMBIL"
+    );
+
+
     return;
 
   }
 
 
-  // ==============================
-  // SUDAH AMBIL KIT
-  // ==============================
+  // ======================================
+  // KIT SUDAH DIAMBIL
+  // ======================================
 
   if(
     data.status ===
     "KIT_DONE"
   ){
-
-    updateStatus(
-      "HADIR / SUDAH AMBIL"
-    );
-
 
     showResult(
 
@@ -768,14 +728,19 @@ function handleCheckInResult(
     );
 
 
+    updateStatus(
+      "HADIR / SUDAH AMBIL"
+    );
+
+
     return;
 
   }
 
 
-  // ==============================
+  // ======================================
   // ERROR
-  // ==============================
+  // ======================================
 
   showResult(
 
@@ -784,11 +749,23 @@ function handleCheckInResult(
     (
       data.message ||
       "Proses tidak berjaya"
-    ),
+    ) +
+
+    "<br><br>" +
+
+    "<button onclick=\"resetScanner()\">" +
+
+    "📷 CUBA SCAN SEMULA" +
+
+    "</button>",
 
     "error"
 
   );
+
+
+  processingQR =
+    false;
 
 }
 
@@ -804,56 +781,9 @@ function resetScanner(){
   );
 
 
-  // ==============================
-  // STOP CAMERA JIKA MASIH HIDUP
-  // ==============================
-
-  if(
-    scanner &&
-    scannerRunning
-  ){
-
-    scanner
-      .stop()
-
-      .then(function(){
-
-        scannerRunning =
-          false;
-
-        performReset();
-
-      })
-
-      .catch(function(){
-
-        scannerRunning =
-          false;
-
-        performReset();
-
-      });
-
-  }
-
-  else{
-
-    performReset();
-
-  }
-
-}
-
-
-// ========================================
-// PERFORM RESET
-// ========================================
-
-function performReset(){
-
-  // ==============================
-  // RESET VARIABLES
-  // ==============================
+  // ======================================
+  // RESET GLOBAL
+  // ======================================
 
   currentBib =
     "";
@@ -862,9 +792,9 @@ function performReset(){
     false;
 
 
-  // ==============================
-  // HIDE PARTICIPANT CARD
-  // ==============================
+  // ======================================
+  // HIDE PARTICIPANT INFO
+  // ======================================
 
   const info =
     document.getElementById(
@@ -880,9 +810,9 @@ function performReset(){
   }
 
 
-  // ==============================
+  // ======================================
   // CLEAR PARTICIPANT DATA
-  // ==============================
+  // ======================================
 
   setText(
     "nama",
@@ -915,24 +845,27 @@ function performReset(){
   );
 
 
-  // ==============================
-  // CLEAR MESSAGE
-  // ==============================
+  // ======================================
+  // CLEAR RESULT
+  // ======================================
 
   clearResult();
 
 
-  // ==============================
-  // START CAMERA AGAIN
-  // ==============================
+  // ======================================
+  // RESTART CAMERA
+  // ======================================
 
   setTimeout(
+
     function(){
 
       startScanner();
 
     },
+
     300
+
   );
 
 }
@@ -964,11 +897,10 @@ function formatStatus(
 ){
 
   if(
-
-    checkin === "HADIR" &&
-
-    kit === "SUDAH AMBIL"
-
+    checkin ===
+      "HADIR" &&
+    kit ===
+      "SUDAH AMBIL"
   ){
 
     return "HADIR / SUDAH AMBIL";
@@ -977,7 +909,8 @@ function formatStatus(
 
 
   if(
-    checkin === "HADIR"
+    checkin ===
+    "HADIR"
   ){
 
     return "HADIR";
@@ -986,7 +919,8 @@ function formatStatus(
 
 
   if(
-    kit === "SUDAH AMBIL"
+    kit ===
+    "SUDAH AMBIL"
   ){
 
     return "SUDAH AMBIL";
