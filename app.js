@@ -27,7 +27,7 @@ const SCAN_COOLDOWN = 3000;
 
 
 // ========================================
-// INITIALIZE
+// INITIALIZE SCANNER
 // ========================================
 
 document.addEventListener(
@@ -35,8 +35,81 @@ document.addEventListener(
   function(){
 
     console.log(
-      "GREENERY FUN RUN Scanner PRO loading..."
+      "GREENERY FUN RUN Scanner loading..."
     );
+
+
+    // ==================================
+    // CREW SELECTION
+    // ==================================
+
+    const crewSelect =
+      document.getElementById(
+        "crewSelect"
+      );
+
+    if(crewSelect){
+
+      currentCrew =
+        crewSelect.value ||
+        "Crew A";
+
+
+      crewSelect.addEventListener(
+        "change",
+        function(){
+
+          currentCrew =
+            this.value;
+
+          console.log(
+            "Crew dipilih:",
+            currentCrew
+          );
+
+        }
+      );
+
+    }
+
+
+    // ==================================
+    // KAUNTER SELECTION
+    // ==================================
+
+    const kaunterSelect =
+      document.getElementById(
+        "kaunterSelect"
+      );
+
+    if(kaunterSelect){
+
+      currentKaunter =
+        kaunterSelect.value ||
+        "Kaunter 1";
+
+
+      kaunterSelect.addEventListener(
+        "change",
+        function(){
+
+          currentKaunter =
+            this.value;
+
+          console.log(
+            "Kaunter dipilih:",
+            currentKaunter
+          );
+
+        }
+      );
+
+    }
+
+
+    // ==================================
+    // START SCANNER
+    // ==================================
 
     startScanner();
 
