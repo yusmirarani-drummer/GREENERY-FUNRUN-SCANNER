@@ -853,6 +853,19 @@ function resetScanner(){
     "Reset scanner..."
   );
 
+ // ========================================
+// SCAN PESERTA SETERUSNYA
+// ========================================
+
+function scanNext(){
+
+  console.log(
+    "Scan peserta seterusnya..."
+  );
+
+  resetScanner();
+
+}
 
   // ======================================
   // RESET GLOBAL
