@@ -48,78 +48,6 @@ QR SCANNER
      CREW & KAUNTER
 ===================================== -->
 
-<div class="settings-card">
-
-<h3>
-⚙️ Tetapan Crew
-</h3>
-
-
-<label for="crew">
-Crew
-</label>
-
-
-<select id="crew">
-
-<option value="Crew A">
-Crew A
-</option>
-
-<option value="Crew B">
-Crew B
-</option>
-
-<option value="Crew C">
-Crew C
-</option>
-
-<option value="Crew D">
-Crew D
-</option>
-
-</select>
-
-
-<br><br>
-
-
-<label for="kaunter">
-Kaunter
-</label>
-
-
-<select id="kaunter">
-
-<option value="Kaunter 1">
-Kaunter 1
-</option>
-
-<option value="Kaunter 2">
-Kaunter 2
-</option>
-
-<option value="Kaunter 3">
-Kaunter 3
-</option>
-
-<option value="Kaunter 4">
-Kaunter 4
-</option>
-
-</select>
-
-
-</div>
-
-
-<!-- =====================================
-     QR SCANNER
-===================================== -->
-<!-- =====================================
-     CREW & KAUNTER
-===================================== -->
-
 <div class="control-panel">
 
   <label for="crewSelect">
@@ -127,11 +55,27 @@ Kaunter 4
   </label>
 
   <select id="crewSelect">
-    <option value="Crew A">Crew A</option>
-    <option value="Crew B">Crew B</option>
-    <option value="Crew C">Crew C</option>
-    <option value="Crew D">Crew D</option>
-    <option value="Supervisor">Supervisor</option>
+
+    <option value="Crew A">
+      Crew A
+    </option>
+
+    <option value="Crew B">
+      Crew B
+    </option>
+
+    <option value="Crew C">
+      Crew C
+    </option>
+
+    <option value="Crew D">
+      Crew D
+    </option>
+
+    <option value="Supervisor">
+      Supervisor
+    </option>
+
   </select>
 
 
@@ -140,14 +84,32 @@ Kaunter 4
   </label>
 
   <select id="kaunterSelect">
-    <option value="Kaunter 1">Kaunter 1</option>
-    <option value="Kaunter 2">Kaunter 2</option>
-    <option value="Kaunter 3">Kaunter 3</option>
-    <option value="Kaunter 4">Kaunter 4</option>
+
+    <option value="Kaunter 1">
+      Kaunter 1
+    </option>
+
+    <option value="Kaunter 2">
+      Kaunter 2
+    </option>
+
+    <option value="Kaunter 3">
+      Kaunter 3
+    </option>
+
+    <option value="Kaunter 4">
+      Kaunter 4
+    </option>
+
   </select>
 
 </div>
-      
+
+
+<!-- =====================================
+     QR SCANNER
+===================================== -->
+
 <div id="reader"></div>
 
 
@@ -166,97 +128,78 @@ Kaunter 4
      class="card"
      style="display:none;">
 
-
-<h3>
-Maklumat Peserta
-</h3>
-
-
-<p>
-
-Nama:
-<br>
-
-<b id="nama"></b>
-
-</p>
+  <h3>
+    Maklumat Peserta
+  </h3>
 
 
-<p>
-
-Bib:
-<br>
-
-<b id="bib"></b>
-
-</p>
+  <p>
+    Nama:
+    <br>
+    <b id="nama"></b>
+  </p>
 
 
-<p>
-
-IC:
-<br>
-
-<b id="ic"></b>
-
-</p>
+  <p>
+    Bib:
+    <br>
+    <b id="bib"></b>
+  </p>
 
 
-<p>
-
-Saiz:
-<br>
-
-<b id="saiz"></b>
-
-</p>
+  <p>
+    IC:
+    <br>
+    <b id="ic"></b>
+  </p>
 
 
-<p>
-
-Bayaran:
-<br>
-
-<b id="bayaran"></b>
-
-</p>
+  <p>
+    Saiz:
+    <br>
+    <b id="saiz"></b>
+  </p>
 
 
-<p>
-
-Status:
-<br>
-
-<b id="status"></b>
-
-</p>
+  <p>
+    Bayaran:
+    <br>
+    <b id="bayaran"></b>
+  </p>
 
 
-<!-- =====================================
-     CHECK-IN BUTTON
-===================================== -->
-
-<button
-id="checkInButton"
-onclick="checkIn()">
-
-✅ CHECK-IN + AMBIL KIT
-
-</button>
+  <p>
+    Status:
+    <br>
+    <b id="status"></b>
+  </p>
 
 
-<!-- =====================================
-     SCAN NEXT BUTTON
-===================================== -->
+  <!-- =====================================
+       CHECK-IN BUTTON
+  ===================================== -->
 
-<button
-id="nextButton"
-onclick="scanNext()"
-style="display:none;">
+  <button
+  id="checkInButton"
+  onclick="checkIn()">
 
-📷 SCAN PESERTA SETERUSNYA
+    ✅ CHECK-IN + AMBIL KIT
 
-</button>
+  </button>
+
+
+  <!-- =====================================
+       SCAN NEXT BUTTON
+  ===================================== -->
+
+  <button
+  id="nextButton"
+  onclick="resetScanner()"
+  style="display:none;">
+
+    📷 SCAN PESERTA SETERUSNYA
+
+  </button>
 
 
 </div>
