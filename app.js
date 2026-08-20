@@ -203,13 +203,9 @@ function startScanner(){
 
   scanner.start(
 
-    {
-      facingMode: {
-        ideal:
-          "environment"
-      }
-    },
-
+  {
+    facingMode: "user"
+  },
     {
       fps: 10,
 
