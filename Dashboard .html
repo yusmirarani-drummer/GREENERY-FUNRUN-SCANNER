@@ -1,0 +1,437 @@
+<!DOCTYPE html>
+<html lang="ms">
+
+<head>
+
+<meta charset="UTF-8">
+
+<meta
+  name="viewport"
+  content="width=device-width, initial-scale=1.0"
+>
+
+<title>
+GREENERY FUN RUN EMS PRO - Dashboard
+</title>
+
+<link
+  rel="stylesheet"
+  href="style.css"
+>
+
+</head>
+
+
+<body>
+
+
+<!-- =====================================
+     DASHBOARD HEADER
+===================================== -->
+
+<header class="dashboard-header">
+
+  <div>
+
+    <h1>
+      🌿 GREENERY FUN RUN
+    </h1>
+
+    <p>
+      EMS PRO — LIVE CONTROL DASHBOARD
+    </p>
+
+  </div>
+
+
+  <div
+    id="connectionStatus"
+    class="connection-status"
+  >
+
+    🔄 Connecting...
+
+  </div>
+
+</header>
+
+
+
+<!-- =====================================
+     DASHBOARD CONTAINER
+===================================== -->
+
+<main class="dashboard-container">
+
+
+<!-- =====================================
+     SUMMARY CARDS
+===================================== -->
+
+<section class="summary-grid">
+
+
+  <!-- REGISTERED -->
+
+  <div class="dashboard-card">
+
+    <div class="card-icon">
+      👥
+    </div>
+
+    <div>
+
+      <div class="card-label">
+        REGISTERED
+      </div>
+
+      <div
+        id="totalRegistered"
+        class="card-number"
+      >
+        0
+      </div>
+
+      <div class="card-description">
+        Jumlah peserta
+      </div>
+
+    </div>
+
+  </div>
+
+
+
+  <!-- CHECKED IN -->
+
+  <div class="dashboard-card">
+
+    <div class="card-icon">
+      ✅
+    </div>
+
+    <div>
+
+      <div class="card-label">
+        CHECK-IN
+      </div>
+
+      <div
+        id="checkedIn"
+        class="card-number"
+      >
+        0
+      </div>
+
+      <div class="card-description">
+        Peserta hadir
+      </div>
+
+    </div>
+
+  </div>
+
+
+
+  <!-- KIT -->
+
+  <div class="dashboard-card">
+
+    <div class="card-icon">
+      🎽
+    </div>
+
+    <div>
+
+      <div class="card-label">
+        KIT COLLECTED
+      </div>
+
+      <div
+        id="kitCollected"
+        class="card-number"
+      >
+        0
+      </div>
+
+      <div class="card-description">
+        Kit sudah diambil
+      </div>
+
+    </div>
+
+  </div>
+
+
+
+  <!-- NOT ARRIVED -->
+
+  <div class="dashboard-card">
+
+    <div class="card-icon">
+      🔴
+    </div>
+
+    <div>
+
+      <div class="card-label">
+        BELUM HADIR
+      </div>
+
+      <div
+        id="notArrived"
+        class="card-number"
+      >
+        0
+      </div>
+
+      <div class="card-description">
+        Peserta belum check-in
+      </div>
+
+    </div>
+
+  </div>
+
+
+</section>
+
+
+
+<!-- =====================================
+     PROGRESS
+===================================== -->
+
+<section class="dashboard-section">
+
+  <div class="section-header">
+
+    <h2>
+      📊 Check-In Progress
+    </h2>
+
+    <span id="progressText">
+      0%
+    </span>
+
+  </div>
+
+
+  <div class="progress-container">
+
+    <div
+      id="progressBar"
+      class="progress-bar"
+      style="width:0%;"
+    ></div>
+
+  </div>
+
+</section>
+
+
+
+<!-- =====================================
+     CREW + KAUNTER
+===================================== -->
+
+<section class="two-column-grid">
+
+
+  <!-- ===================================
+       CREW
+  ==================================== -->
+
+  <div class="dashboard-section">
+
+    <div class="section-header">
+
+      <h2>
+        👥 Crew Performance
+      </h2>
+
+    </div>
+
+
+    <div
+      id="crewPerformance"
+      class="performance-list"
+    >
+
+      <div class="loading">
+        Loading...
+      </div>
+
+    </div>
+
+  </div>
+
+
+
+  <!-- ===================================
+       KAUNTER
+  ==================================== -->
+
+  <div class="dashboard-section">
+
+    <div class="section-header">
+
+      <h2>
+        🏪 Kaunter Performance
+      </h2>
+
+    </div>
+
+
+    <div
+      id="kaunterPerformance"
+      class="performance-list"
+    >
+
+      <div class="loading">
+        Loading...
+      </div>
+
+    </div>
+
+  </div>
+
+
+</section>
+
+
+
+<!-- =====================================
+     RECENT ACTIVITY
+===================================== -->
+
+<section class="dashboard-section">
+
+
+  <div class="section-header">
+
+    <h2>
+      🕐 Aktiviti Scanner Terkini
+    </h2>
+
+    <span
+      id="lastUpdated"
+    >
+      -
+    </span>
+
+  </div>
+
+
+
+  <div class="table-wrapper">
+
+    <table>
+
+      <thead>
+
+        <tr>
+
+          <th>
+            Masa
+          </th>
+
+          <th>
+            Bib
+          </th>
+
+          <th>
+            Nama
+          </th>
+
+          <th>
+            Action
+          </th>
+
+          <th>
+            Crew
+          </th>
+
+          <th>
+            Kaunter
+          </th>
+
+          <th>
+            Status
+          </th>
+
+        </tr>
+
+      </thead>
+
+
+      <tbody
+        id="activityTable"
+      >
+
+        <tr>
+
+          <td
+            colspan="7"
+            class="loading"
+          >
+
+            Loading...
+
+          </td>
+
+        </tr>
+
+      </tbody>
+
+    </table>
+
+  </div>
+
+
+</section>
+
+
+
+<!-- =====================================
+     REFRESH BUTTON
+===================================== -->
+
+<div class="dashboard-controls">
+
+  <button
+    id="refreshButton"
+    onclick="loadDashboard()"
+  >
+
+    🔄 REFRESH DASHBOARD
+
+  </button>
+
+
+  <span>
+
+    Auto refresh:
+    <b>
+      10 saat
+    </b>
+
+  </span>
+
+</div>
+
+
+</main>
+
+
+
+<!-- =====================================
+     DASHBOARD JAVASCRIPT
+===================================== -->
+
+<script src="dashboard.js"></script>
+
+
+</body>
+
+</html>
