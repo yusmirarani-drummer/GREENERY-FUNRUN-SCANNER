@@ -1,6 +1,7 @@
 /*****************************************
  GREENERY FUN RUN EMS PRO
  DASHBOARD.JS
+ VERSION 2.0
 *****************************************/
 
 
@@ -16,8 +17,28 @@ const DASHBOARD_API_URL =
 // AUTO REFRESH
 // ========================================
 
-const REFRESH_INTERVAL =
-  10000;
+const REFRESH_INTERVAL = 10000;
+
+
+// ========================================
+// SYSTEM CONFIGURATION
+// ========================================
+
+const IGNORE_CREW = [
+  "",
+  "Tidak Ditetapkan",
+  "Tidak ditetapkan"
+];
+
+const IGNORE_KAUNTER = [
+  "",
+  "Tidak Ditetapkan",
+  "Tidak ditetapkan"
+];
+
+const TEST_BIBS = [
+  "TEST001"
+];
 
 
 // ========================================
@@ -27,6 +48,10 @@ const REFRESH_INTERVAL =
 document.addEventListener(
   "DOMContentLoaded",
   function(){
+
+    console.log(
+      "GREENERY FUN RUN EMS PRO Dashboard loading..."
+    );
 
     loadDashboard();
 
@@ -51,100 +76,133 @@ function loadDashboard(){
   );
 
 
-  fetch(
+  const url =
     DASHBOARD_API_URL +
-    "?action=dashboard&ts=" +
-    Date.now()
-  )
+    "?action=dashboard" +
+    "&ts=" +
+    Date.now();
 
-  .then(function(response){
 
-    if(!response.ok){
+  fetch(url)
 
-      throw new Error(
-        "HTTP " +
-        response.status
+    .then(function(response){
+
+      if(!response.ok){
+
+        throw new Error(
+          "HTTP " +
+          response.status
+        );
+
+      }
+
+      return response.json();
+
+    })
+
+    .then(function(data){
+
+      console.log(
+        "Dashboard data:",
+        data
       );
 
-    }
 
-    return response.json();
+      if(
+        !data ||
+        data.status !== "SUCCESS"
+      ){
 
-  })
+        throw new Error(
+          data &&
+          data.message
+            ? data.message
+            : "Dashboard API error"
+        );
 
-  .then(function(data){
-
-    console.log(
-      "Dashboard data:",
-      data
-    );
+      }
 
 
-    if(
-      data.status !==
-      "SUCCESS"
-    ){
+      // ==================================
+      // SUMMARY
+      // ==================================
 
-      throw new Error(
-        data.message ||
-        "Dashboard API error"
+      updateSummary(
+        data.summary
       );
 
-    }
+
+      // ==================================
+      // PROGRESS
+      // ==================================
+
+      updateProgress(
+        data.summary
+      );
 
 
-    updateSummary(
-      data.summary
-    );
+      // ==================================
+      // CREW
+      // ==================================
+
+      updateCrewPerformance(
+        data.crewPerformance
+      );
 
 
-    updateProgress(
-      data.summary
-    );
+      // ==================================
+      // KAUNTER
+      // ==================================
+
+      updateKaunterPerformance(
+        data.kaunterPerformance
+      );
 
 
-    updateCrewPerformance(
-      data.crewPerformance
-    );
+      // ==================================
+      // ACTIVITY
+      // ==================================
+
+      updateActivity(
+        data.recentActivities
+      );
 
 
-    updateKaunterPerformance(
-      data.kaunterPerformance
-    );
+      // ==================================
+      // LAST UPDATED
+      // ==================================
+
+      setText(
+        "lastUpdated",
+        data.generatedAt
+      );
 
 
-    updateActivity(
-      data.recentActivities
-    );
+      // ==================================
+      // CONNECTION
+      // ==================================
+
+      setConnectionStatus(
+        "🟢 LIVE",
+        "success"
+      );
+
+    })
+
+    .catch(function(error){
+
+      console.error(
+        "Dashboard error:",
+        error
+      );
 
 
-    setText(
-      "lastUpdated",
-      data.generatedAt
-    );
+      setConnectionStatus(
+        "🔴 OFFLINE",
+        "error"
+      );
 
-
-    setConnectionStatus(
-      "🟢 LIVE",
-      "success"
-    );
-
-  })
-
-  .catch(function(error){
-
-    console.error(
-      "Dashboard error:",
-      error
-    );
-
-
-    setConnectionStatus(
-      "🔴 OFFLINE",
-      "error"
-    );
-
-  });
+    });
 
 }
 
@@ -164,27 +222,51 @@ function updateSummary(
   }
 
 
+  const total =
+    Number(
+      summary.totalRegistered
+    ) || 0;
+
+
+  const checkedIn =
+    Number(
+      summary.checkedIn
+    ) || 0;
+
+
+  const kitCollected =
+    Number(
+      summary.kitCollected
+    ) || 0;
+
+
+  const notArrived =
+    Number(
+      summary.notArrived
+    ) || 0;
+
+
   setText(
     "totalRegistered",
-    summary.totalRegistered
+    total
   );
 
 
   setText(
     "checkedIn",
-    summary.checkedIn
+    checkedIn
   );
 
 
   setText(
     "kitCollected",
-    summary.kitCollected
+    kitCollected
   );
 
 
   setText(
     "notArrived",
-    summary.notArrived
+    notArrived
   );
 
 }
@@ -224,8 +306,10 @@ function updateProgress(
 
     percentage =
       Math.round(
-        (checkedIn / total) *
-        100
+        (
+          checkedIn /
+          total
+        ) * 100
       );
 
   }
@@ -254,6 +338,122 @@ function updateProgress(
 
 
 // ========================================
+// CLEAN CREW DATA
+// ========================================
+
+function cleanCrewData(
+  data
+){
+
+  if(
+    !Array.isArray(data)
+  ){
+
+    return [];
+
+  }
+
+
+  return data.filter(
+    function(item){
+
+      if(!item){
+
+        return false;
+
+      }
+
+
+      const crew =
+        String(
+          item.crew || ""
+        ).trim();
+
+
+      if(
+        IGNORE_CREW
+          .map(
+            function(x){
+              return x.toLowerCase();
+            }
+          )
+          .includes(
+            crew.toLowerCase()
+          )
+      ){
+
+        return false;
+
+      }
+
+
+      return true;
+
+    }
+  );
+
+}
+
+
+// ========================================
+// CLEAN KAUNTER DATA
+// ========================================
+
+function cleanKaunterData(
+  data
+){
+
+  if(
+    !Array.isArray(data)
+  ){
+
+    return [];
+
+  }
+
+
+  return data.filter(
+    function(item){
+
+      if(!item){
+
+        return false;
+
+      }
+
+
+      const kaunter =
+        String(
+          item.kaunter || ""
+        ).trim();
+
+
+      if(
+        IGNORE_KAUNTER
+          .map(
+            function(x){
+              return x.toLowerCase();
+            }
+          )
+          .includes(
+            kaunter.toLowerCase()
+          )
+      ){
+
+        return false;
+
+      }
+
+
+      return true;
+
+    }
+  );
+
+}
+
+
+// ========================================
 // CREW PERFORMANCE
 // ========================================
 
@@ -277,15 +477,22 @@ function updateCrewPerformance(
   container.innerHTML = "";
 
 
+  const cleanData =
+    cleanCrewData(
+      data
+    );
+
+
   if(
-    !data ||
-    data.length === 0
+    cleanData.length === 0
   ){
 
     container.innerHTML =
 
       '<div class="empty">' +
+
       'Belum ada aktiviti crew.' +
+
       '</div>';
 
     return;
@@ -293,7 +500,7 @@ function updateCrewPerformance(
   }
 
 
-  data.forEach(
+  cleanData.forEach(
     function(item){
 
       const row =
@@ -306,6 +513,30 @@ function updateCrewPerformance(
         "performance-row";
 
 
+      const crew =
+        String(
+          item.crew || ""
+        );
+
+
+      const total =
+        Number(
+          item.total
+        ) || 0;
+
+
+      const success =
+        Number(
+          item.success
+        ) || 0;
+
+
+      const error =
+        Number(
+          item.error
+        ) || 0;
+
+
       row.innerHTML =
 
         '<div>' +
@@ -313,14 +544,15 @@ function updateCrewPerformance(
           '<strong>' +
 
             escapeHTML(
-              item.crew
+              crew
             ) +
 
           '</strong>' +
 
           '<small>' +
 
-            item.total +
+            total +
+
             ' aktiviti' +
 
           '</small>' +
@@ -332,14 +564,16 @@ function updateCrewPerformance(
           '<span class="success-text">' +
 
             '✓ ' +
-            item.success +
+
+            success +
 
           '</span>' +
 
           '<span class="error-text">' +
 
             '✕ ' +
-            item.error +
+
+            error +
 
           '</span>' +
 
@@ -380,15 +614,22 @@ function updateKaunterPerformance(
   container.innerHTML = "";
 
 
+  const cleanData =
+    cleanKaunterData(
+      data
+    );
+
+
   if(
-    !data ||
-    data.length === 0
+    cleanData.length === 0
   ){
 
     container.innerHTML =
 
       '<div class="empty">' +
+
       'Belum ada aktiviti kaunter.' +
+
       '</div>';
 
     return;
@@ -396,7 +637,7 @@ function updateKaunterPerformance(
   }
 
 
-  data.forEach(
+  cleanData.forEach(
     function(item){
 
       const row =
@@ -409,6 +650,30 @@ function updateKaunterPerformance(
         "performance-row";
 
 
+      const kaunter =
+        String(
+          item.kaunter || ""
+        );
+
+
+      const total =
+        Number(
+          item.total
+        ) || 0;
+
+
+      const success =
+        Number(
+          item.success
+        ) || 0;
+
+
+      const error =
+        Number(
+          item.error
+        ) || 0;
+
+
       row.innerHTML =
 
         '<div>' +
@@ -416,14 +681,15 @@ function updateKaunterPerformance(
           '<strong>' +
 
             escapeHTML(
-              item.kaunter
+              kaunter
             ) +
 
           '</strong>' +
 
           '<small>' +
 
-            item.total +
+            total +
+
             ' aktiviti' +
 
           '</small>' +
@@ -435,14 +701,16 @@ function updateKaunterPerformance(
           '<span class="success-text">' +
 
             '✓ ' +
-            item.success +
+
+            success +
 
           '</span>' +
 
           '<span class="error-text">' +
 
             '✕ ' +
-            item.error +
+
+            error +
 
           '</span>' +
 
@@ -455,6 +723,63 @@ function updateKaunterPerformance(
 
     }
   );
+
+}
+
+
+// ========================================
+// CHECK TEST / INVALID ACTIVITY
+// ========================================
+
+function isValidActivity(
+  item
+){
+
+  if(!item){
+
+    return false;
+
+  }
+
+
+  const bib =
+    String(
+      item.bib || ""
+    )
+    .trim()
+    .toUpperCase();
+
+
+  // Abaikan TEST001
+  if(
+    TEST_BIBS
+      .map(
+        function(x){
+          return x.toUpperCase();
+        }
+      )
+      .includes(bib)
+  ){
+
+    return false;
+
+  }
+
+
+  // Abaikan rekod kosong
+  if(
+    bib === "" &&
+    String(
+      item.nama || ""
+    ).trim() === ""
+  ){
+
+    return false;
+
+  }
+
+
+  return true;
 
 }
 
@@ -484,8 +809,30 @@ function updateActivity(
 
 
   if(
-    !data ||
-    data.length === 0
+    !Array.isArray(data)
+  ){
+
+    data = [];
+
+  }
+
+
+  // ==================================
+  // FILTER DATA
+  // ==================================
+
+  const cleanData =
+    data.filter(
+      isValidActivity
+    );
+
+
+  // ==================================
+  // EMPTY
+  // ==================================
+
+  if(
+    cleanData.length === 0
   ){
 
     tbody.innerHTML =
@@ -505,7 +852,11 @@ function updateActivity(
   }
 
 
-  data.forEach(
+  // ==================================
+  // RENDER
+  // ==================================
+
+  cleanData.forEach(
     function(item){
 
       const tr =
@@ -517,7 +868,9 @@ function updateActivity(
       const status =
         String(
           item.status || ""
-        ).toUpperCase();
+        )
+        .trim()
+        .toUpperCase();
 
 
       let statusClass =
@@ -535,7 +888,7 @@ function updateActivity(
       }
 
 
-      if(
+      else if(
         status ===
         "ERROR"
       ){
@@ -556,13 +909,17 @@ function updateActivity(
 
         '</td>' +
 
-        '<td><strong>' +
+        '<td>' +
 
-          escapeHTML(
-            item.bib
-          ) +
+          '<strong>' +
 
-        '</strong></td>' +
+            escapeHTML(
+              item.bib
+            ) +
+
+          '</strong>' +
+
+        '</td>' +
 
         '<td>' +
 
@@ -599,7 +956,9 @@ function updateActivity(
         '<td>' +
 
           '<span class="' +
+
           statusClass +
+
           '">' +
 
             escapeHTML(
@@ -672,9 +1031,12 @@ function setText(
   if(element){
 
     element.textContent =
+
       value === undefined ||
       value === null
+
         ? ""
+
         : value;
 
   }
